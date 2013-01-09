@@ -2,7 +2,9 @@ from   StringIO   import StringIO
 from   subprocess import Popen, PIPE
 import mock
 
-class MockPopen:
+
+
+class MockPopen(object):
   def __init__(self, stdout = '', stderr = '', result = 0):
     self.stdout = stdout
     self.stderr = stderr
@@ -17,10 +19,15 @@ class MockPopen:
   def __call__(self, args, bufsize=0, executable=None, stdin=None, stdout=None, stderr=None, *leftover_args, **kwargs):
     retval = mock.MagicMock()
 
-    (sout, retval.stdout) = self.__prepare(stdout, self.stdout)
-    (serr, retval.stderr) = self.__prepare(stderr, self.stderr)
+    retval.stdout = StringIO(self.stdout) if stdout == PIPE else None
+    retval.stderr = StringIO(self.stderr) if stderr == PIPE else None
+
+    def communicate(stdin = None):
+      o = retval.stdout.read() if retval.stdout else None
+      e = retval.stderr.read() if retval.stderr else None
+      return (o, e)
     
-    retval.communicate.return_value = (sout, serr)
+    retval.communicate.side_effect = communicate
     
     retval.wait.return_value = self.result
     return retval
