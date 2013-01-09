@@ -19,7 +19,7 @@ def stream_for(input):
     return input
 
 
-class MockPopen(object):
+class Popen_Mock(object):
   def __init__(self, stdout = '', stderr = '', result = 0):
     self.stdout = stdout
     self.stderr = stderr
