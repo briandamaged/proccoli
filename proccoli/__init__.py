@@ -1,9 +1,22 @@
 from   StringIO   import StringIO
 from   subprocess import Popen, PIPE
+from   types      import StringTypes
 import mock
 import logging
 
 log = logging.getLogger(__name__)
+
+
+def stream_for(input):
+  """
+  If the input is a string, then return a StringIO instance.
+  Otherwise, just return the original input.  (In other words:
+  just assume the input is a stream)
+  """
+  if isinstance(input, StringTypes):
+    return StringIO(input)
+  else:
+    return input
 
 
 class MockPopen(object):
@@ -12,13 +25,11 @@ class MockPopen(object):
     self.stderr = stderr
     self.result = 0
 
-
-
   def __call__(self, args, bufsize=0, executable=None, stdin=None, stdout=None, stderr=None, *leftover_args, **kwargs):
     retval = mock.MagicMock()
 
-    retval.stdout = StringIO(self.stdout) if stdout == PIPE else None
-    retval.stderr = StringIO(self.stderr) if stderr == PIPE else None
+    retval.stdout = stream_for(self.stdout) if stdout == PIPE else None
+    retval.stderr = stream_for(self.stderr) if stderr == PIPE else None
 
     def communicate(stdin = None):
       o = retval.stdout.read() if retval.stdout else None
