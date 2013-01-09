@@ -10,11 +10,7 @@ class MockPopen(object):
     self.stderr = stderr
     self.result = 0
 
-  def __prepare(self, config, data):
-    if config == PIPE:
-      return (data, StringIO(data))
-    else:
-      return (None, None)
+
 
   def __call__(self, args, bufsize=0, executable=None, stdin=None, stdout=None, stderr=None, *leftover_args, **kwargs):
     retval = mock.MagicMock()
