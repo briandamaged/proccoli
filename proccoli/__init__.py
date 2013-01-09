@@ -1,7 +1,9 @@
 from   StringIO   import StringIO
 from   subprocess import Popen, PIPE
 import mock
+import logging
 
+log = logging.getLogger(__name__)
 
 
 class MockPopen(object):
@@ -28,3 +30,18 @@ class MockPopen(object):
     retval.wait.return_value = self.result
     return retval
 
+
+
+class Popen_LogArguments(object):
+  def __init__(self, popen, log = log, level = logging.DEBUG, log_args = None, log_kwargs = None):
+    self.popen = popen
+    self.log   = log
+    self.level = level
+    self.log_args   = log_args   if log_args   else []
+    self.log_kwargs = log_kwargs if log_kwargs else {}
+
+  def __call__(self, *args, **kwargs):
+    self.log.log(self.level, "args:   %s",   args, *self.log_args, **self.log_kwargs)
+    self.log.log(self.level, "kwargs: %s", kwargs, *self.log_args, **self.log_kwargs)
+    
+    return self.popen(*args, **kwargs)
